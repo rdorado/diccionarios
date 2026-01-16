@@ -175,6 +175,14 @@ def main():
         input_directory = sys.argv[2]
         output_directory = sys.argv[3]
 
+        if not os.path.isdir(input_directory):
+            print("Error. Provided input directory does not exist. Exiting.")
+            sys.exit(1)
+
+        if not os.path.isdir(output_directory):
+            print("Error. Provided output directory does not exist. Exiting.")
+            sys.exit(1)
+
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
 
@@ -216,10 +224,27 @@ def main():
         except Exception as e:
             print(f"Error writing merged trigrams to file {output_file}: {e}")
 
-
-
     elif command == "query-tag-trigrams":
-        if len(sys.argv) < 9:
+        if len(sys.argv) < 8:
+            print("Usage: python trigrams.py query-tag-trigrams <input_file> <output_file> <target_tag> <threshold1> <threshold2> <threshold3> <support>")
+            sys.exit(1)
+
+        input_file = sys.argv[2]
+        output_file = sys.argv[3]
+
+        trigrams = read_trigrams(input_file)
+        target_tag1 = sys.argv[4]
+        target_tag2 = sys.argv[5]
+        target_tag3 = sys.argv[6]
+        threshold1 = int(sys.argv[7])
+
+        results = query_tag_trigrams(trigrams, (target_tag1, target_tag2, target_tag3), threshold=threshold1)
+        for trigram, count in results:
+            print(trigram, " --> total:", count)
+
+
+    elif command == "query-target-trigrams":
+        if len(sys.argv) < 8:
             print("Usage: python trigrams.py query-tag-trigrams <input_file> <output_file> <target_tag> <threshold1> <threshold2> <threshold3> <support>")
             sys.exit(1)
 
@@ -230,7 +255,7 @@ def main():
         #target_tag = 'AJNS'
         #target_tag = 'NMS'
         #target_tag = 'NFS'
-        target_tag = sys.argv[4]
+        target_tag1 = sys.argv[4]
         threshold1 = int(sys.argv[5])
         threshold2 = int(sys.argv[6])
         threshold3 = int(sys.argv[7])
@@ -260,9 +285,9 @@ def main():
         #pattern = ["LAS", "DE"]
         #pattern = ["LOS", "DE"]
         #pattern = ["LA", "NFS"]
-        tag1 = sys.argv[2]
-        tag3 = sys.argv[3]
-        threshold = int(sys.argv[4])
+        tag1 = sys.argv[3]
+        tag3 = sys.argv[4]
+        threshold = int(sys.argv[5])
         result = find_words_from_pattern(input_file, tag1, tag3)
         for word, count in result.items():
             if count >= threshold:

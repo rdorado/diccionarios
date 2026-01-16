@@ -106,8 +106,13 @@ def main():
         input_directory = sys.argv[2]
         output_directory = sys.argv[3]
 
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
+        if not os.path.isdir(input_directory):
+            print("Error. Provided input directory does not exist. Exiting.")
+            sys.exit(1)
+
+        if not os.path.isdir(output_directory):
+            print("Error. Provided output directory does not exist. Exiting.")
+            sys.exit(1)
 
         for filename in os.listdir(input_directory):
             input_path = os.path.join(input_directory, filename)

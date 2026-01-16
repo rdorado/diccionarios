@@ -4,10 +4,10 @@
 
 ```bash
 python3 -m venv .venv
-```
-
 pip install scipy
 pip install scikit-learn
+```
+
 
 ## Activate the virtual environment
 
@@ -19,7 +19,7 @@ source .venv/bin/activate
 
 **Windows:**
 ```bash
-venv\Scripts\activate
+.venv\Scripts\activate
 ```
 
 ## Deactivate
@@ -52,7 +52,7 @@ python src/unigrams.py compare data/test/dict1.unigrams data/test/dict2.unigrams
 python src/unigrams.py compare output/unigrams/gutenberg/azul.unigrams output/unigrams/gutenberg/niebla.unigrams 
 
 
-## Analysis
+### Analysis
 
 Filter unigrams:
 Ex.:
@@ -98,24 +98,24 @@ python src/preprocess.py preprocess ./data/raw/gutenberg_granos_de_oro.txt outpu
 python src/preprocess.py preprocess ./data/raw/gutenberg/granos_de_oro.txt output/preprocess/granos_de_oro.txt
 
 ### Batch text files
-python src/preprocess.py preprocess-batch ./data/raw/gutenberg output/preprocess
+python src/preprocess.py preprocess-batch ./data/raw/gutenberg output/preprocess/gutenberg
 
 
 ## Tagged corpus
 
 python src/tagger.py tag ./data/tagged/nouns.dtag ./output/preprocess/granos_de_oro.txt ./output/tagged/granos_de_oro.tagged
 
-python src/tagger.py tag-batch ./data/tagged/nouns.dtag ./output/preprocess ./output/tagged
+python src/tagger.py tag-batch ./data/tagged/nouns.dtag ./output/preprocess/guttenberg ./output/tagged/guttenberg
 
-python src/tagger.py merge ./output/tagged ./output/merged/gutenberg.tagged
+python src/tagger.py merge ./output/tagged/guttenberg ./output/merged/gutenberg.tagged
 
 ## Tag trigrams
 
 python src/trigrams.py create ./output/tagged/granos_de_oro.txt ./output/tritags/granos_de_oro.tritags
 
-python src/trigrams.py create-batch ./output/tagged ./output/tritags
+python src/trigrams.py create-batch ./output/tagged/guttenberg ./output/tritags/guttenberg
 
-python src/trigrams.py merge-batch ./output/tritags ./output/merged/gutenberg.tritags
+python src/trigrams.py merge-batch ./output/tritags/guttenberg ./output/merged/gutenberg.tritags
 
 
 

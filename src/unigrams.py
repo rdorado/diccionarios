@@ -130,6 +130,14 @@ def main():
         output_directory = sys.argv[3]
         threshold = int(sys.argv[-1])
 
+        if not os.path.isdir(input_directory):
+            print("Error. Provided input directory does not exist. Exiting.")
+            sys.exit(1)
+
+        if not os.path.isdir(output_directory):
+            print("Error. Provided output directory does not exist. Exiting.")
+            sys.exit(1)
+
         for f in os.listdir(input_directory):
             input_file = os.path.join(input_directory, f)
             result = None
@@ -156,6 +164,15 @@ def main():
         output_file = sys.argv[3]
         threshold = int(sys.argv[4])
         merged_dict = {}
+
+        if not os.path.isdir(input_directory):
+            print("Error. Provided input directory does not exist. Exiting.")
+            sys.exit(1)
+
+        output_dir = os.path.dirname(output_file)
+        if not os.path.isdir(output_dir):
+            print("Error. Parent directory of output file does not exist. Exiting.")
+            sys.exit(1)
 
         for f in os.listdir(input_directory):
             dict_file = os.path.join(input_directory, f)

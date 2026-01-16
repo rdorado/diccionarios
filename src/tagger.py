@@ -68,6 +68,18 @@ def main():
         input_dir = sys.argv[3]
         output_dir = sys.argv[4]
 
+        if not os.path.isfile(tagged_file):
+            print("Error. Provided tag file not found. Exiting.")
+            sys.exit(1)
+
+        if not os.path.isdir(input_dir):
+            print("Error. Provided input directory does not exist. Exiting.")
+            sys.exit(1)
+
+        if not os.path.isdir(output_dir):
+            print("Error. Provided output directory does not exist. Exiting.")
+            sys.exit(1)
+
         tagged_data = read_tagged(tagged_file)
         categories = {}
         for tag, words in tagged_data.items():

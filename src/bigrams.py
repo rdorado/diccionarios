@@ -117,16 +117,6 @@ def main():
         bigrams = count_bigrams(input_file)
         write_bigrams(output_file, bigrams, threshold)
 
-
-        #print_bigrams_filtered(bigrams, threshold=20)
-        #query_bigrams(bigrams, ("un", "*"), threshold=5)
-        
-        #'hombre', 'hombres', 'mundo', 'pueblo', 'pueblos', 'tierra', 'vida'
-
-        #keyword = sys.argv[3]
-        #query_bigrams(bigrams, ("*", keyword), threshold=threshold)
-        #query_bigrams(bigrams, (keyword, "*"), threshold=threshold)
-
     elif command == "create-batch":
         if len(sys.argv) < 5:
             print("Usage: python bigrams.py create-batch <input_file> <output_file> threshold")
@@ -135,6 +125,14 @@ def main():
         input_directory = sys.argv[2]
         output_directory = sys.argv[3]
         threshold = int(sys.argv[-1])
+
+        if not os.path.isdir(input_directory):
+            print("Error. Provided input directory does not exist. Exiting.")
+            sys.exit(1)
+
+        if not os.path.isdir(output_directory):
+            print("Error. Provided output directory does not exist. Exiting.")
+            sys.exit(1)
 
         for f in os.listdir(input_directory):
             input_file = os.path.join(input_directory, f)
@@ -162,6 +160,15 @@ def main():
         output_file = sys.argv[3]
         threshold = int(sys.argv[4])
         merged_dict = {}
+
+        if not os.path.isdir(input_directory):
+            print("Error. Provided input directory does not exist. Exiting.")
+            sys.exit(1)
+
+        output_dir = os.path.dirname(output_file)
+        if not os.path.isdir(output_dir):
+            print("Error. Parent directory of output file does not exist. Exiting.")
+            sys.exit(1)
 
         for f in os.listdir(input_directory):
             dict_file = os.path.join(input_directory, f)
