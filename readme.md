@@ -17,6 +17,8 @@ pip install scikit-learn
 source .venv/bin/activate
 ```
 
+
+
 **Windows:**
 ```bash
 .venv\Scripts\activate
@@ -105,11 +107,11 @@ python src/preprocess.py preprocess-batch ./data/raw/gutenberg output/preprocess
 
 python src/tagger.py tag ./data/tagged/nouns.dtag ./output/preprocess/granos_de_oro.txt ./output/tagged/granos_de_oro.tagged
 
-python src/tagger.py tag-batch ./data/tagged/nouns.dtag ./output/preprocess/guttenberg ./output/tagged/guttenberg
+python src/tagger.py tag-batch ./output/preprocess/guttenberg ./output/tagged/guttenberg ./data/tagged/nouns.dtag
 
 python src/tagger.py merge ./output/tagged/guttenberg ./output/merged/gutenberg.tagged
 
-## Tag trigrams
+## Tritags
 
 python src/trigrams.py create ./output/tagged/granos_de_oro.txt ./output/tritags/granos_de_oro.tritags
 
@@ -144,3 +146,33 @@ threshold3: number of tags within the rule
 python src/trigrams.py query-tag-trigrams ./output/merged/gutenberg.tritags ./output/test NFS 0 
 python src/trigrams.py search-words-by-pattern ./output/merged/gutenberg.tagged LA NFS 10
 python src/trigrams.py search-realtions-by-pattern ./output/merged/gutenberg.tagged
+
+## Find tritags rules from scratch
+
+Finds and output a set of possible rules with similar contexts:
+
+LA UNK DE
+
+### Step 1: preprocess batch
+python src/tagger.py tag-batch ./output/preprocess/guttenberg ./output/tagged/guttenberg
+
+### Step 2: tag batch
+python src/tagger.py tag-batch ./output/preprocess/gutenberg ./output/tagged/gutenberg
+
+python src/tagger.py merge ./output/tagged/gutenberg ./output/merged/gutenberg.tagged
+
+### Step 3: tritags batch
+python src/trigrams.py create-batch ./output/tagged/gutenberg ./output/tritags/gutenberg
+
+### Step 4: merge tritags
+python src/trigrams.py merge-batch ./output/tritags/gutenberg ./output/merged/gutenberg.tritags
+
+### Step 5: find rules
+python src/trigrams.py find-trigram-rules ./output/merged/gutenberg.tritags ./output/step1.rules
+
+### Step 6: find word clusters
+
+python src/trigrams.py find-word-clusters ./output/step1.rules ./output/merged/gutenberg.tagged ./output/setp2.clusters
+
+
+

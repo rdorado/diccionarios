@@ -61,16 +61,11 @@ def main():
         tag_file(input_file, categories, output_file)
         
     elif command == "tag-batch":
-        if len(sys.argv) != 5:
+        if len(sys.argv) != 4:
             sys.exit(1)
 
-        tagged_file = sys.argv[2]
-        input_dir = sys.argv[3]
-        output_dir = sys.argv[4]
-
-        if not os.path.isfile(tagged_file):
-            print("Error. Provided tag file not found. Exiting.")
-            sys.exit(1)
+        input_dir = sys.argv[2]
+        output_dir = sys.argv[3]
 
         if not os.path.isdir(input_dir):
             print("Error. Provided input directory does not exist. Exiting.")
@@ -80,7 +75,14 @@ def main():
             print("Error. Provided output directory does not exist. Exiting.")
             sys.exit(1)
 
-        tagged_data = read_tagged(tagged_file)
+        tagged_data = {}
+        if len(sys.argv) > 4:
+            tagged_file = sys.argv[4]
+            if not os.path.isfile(tagged_file):
+                print("Provided tag dictionary file not found. Skipping tag diccionary.")
+            else:
+                tagged_data = read_tagged(tagged_file)
+
         categories = {}
         for tag, words in tagged_data.items():
             for word in words:
@@ -96,7 +98,16 @@ def main():
             sys.exit(1) 
         input_dir = sys.argv[2]
         output_file = sys.argv[3]
-        
+
+        if not os.path.isdir(input_dir):
+            print("Error. Provided input directory does not exist. Exiting.")
+            sys.exit(1)
+
+        output_dir = os.path.dirname(output_file)
+        if not os.path.isdir(output_dir):
+            print("Error. Parent directory of output file does not exist. Exiting.")
+            sys.exit(1)
+
         if os.path.exists(output_file):
             os.remove(output_file)
 

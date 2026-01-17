@@ -1,11 +1,14 @@
-import sys
 import os
+import sys
+
+import numpy as np
+import scipy.sparse as sp
+#from scipy.sparse import lil_array
 
 def help():
     print("Usage: python analysis.py <command>")
     print("List of commands:")
     print("  ")
-
 
 def process_tagged_file(file_path):
     """
@@ -243,6 +246,44 @@ def main():
             print(trigram, " --> total:", count)
 
 
+    elif command == "find-trigram-rules":
+        if len(sys.argv) < 3:
+            print("Usage: python trigrams.py query-tag-trigrams <input_file> <output_file> <target_tag> <threshold1> <threshold2> <threshold3> <support>")
+            sys.exit(1)
+
+        input_file = sys.argv[2]
+        output_file = sys.argv[3]
+
+        threshold1 = 0
+        trigrams = read_trigrams(input_file)
+
+        results = query_tag_trigrams(trigrams, ("*", "*", "*"), threshold=threshold1)
+        tags = []
+        for trigram, count in results:
+            for t in list(trigram):
+                if not t in tags:
+                    tags.append(t)
+
+        rules = []
+        for t1 in tags:
+            if t1 == "UNK": continue
+            for t2 in tags:
+                if t2 == "UNK": continue
+                results = query_tag_trigrams(trigrams, (t1, "*", t2), threshold=threshold1)
+                if len(results) > 0:
+                    tsum = 0
+                    for trigram, count in results:
+                        tsum = tsum + count
+                    if tsum > 200:
+                        for trigram, count in results:
+                            if count/tsum > 0.2 and trigram[1] == "UNK":
+                                rules.append(trigram)
+
+        with open(output_file, 'w', encoding='utf-8') as f:
+            for rule in rules:
+                f.write(rule[0]+" "+rule[2]+"\n")
+
+
     elif command == "query-target-trigrams":
         if len(sys.argv) < 8:
             print("Usage: python trigrams.py query-tag-trigrams <input_file> <output_file> <target_tag> <threshold1> <threshold2> <threshold3> <support>")
@@ -275,6 +316,7 @@ def main():
                 for t, c in result:
                     print(f"    '{t}'\t{c}")
 
+
     elif command == "search-words-by-pattern":
         if len(sys.argv) < 6:
             print("Usage: python trigrams.py search-words-by-pattern <input_file> <tag1> <tag2> <tag3> threshold")
@@ -292,6 +334,82 @@ def main():
         for word, count in result.items():
             if count >= threshold:
                 print(f"{word}")
+
+    elif command == "find-word-clusters":
+        if len(sys.argv) < 5:
+            print("Usage: python trigrams.py search-words-by-pattern <input_file> <tag1> <tag2> <tag3> threshold")
+            sys.exit(1)
+
+        rules_file = sys.argv[2]
+        input_file = sys.argv[3]
+        output_file = sys.argv[4]
+
+        curr_id = 0
+        word_id_dict = {}
+        vectors = []
+        rules = []
+        test = ["A B", " A C", "A D"]
+        def test_words(tag3):
+            if tag3 == "B": return {"uno": 2, "dos": 4}
+            if tag3 == "C": return {"uno": 2, "tres": 4, "quatro": 1}
+            if tag3 == "D": return {"uno": 2, "dos":4, "tres": 4, "quatro": 4}
+        with open(rules_file, 'r', encoding="utf-8") as f:
+
+            for line in f:
+            #for line in test:
+                vector = []
+                (tag1, tag3) = line.strip().split()
+                result = find_words_from_pattern(input_file, tag1, tag3)
+                #result = test_words(tag3)
+                for word, count in result.items():
+                    try:
+                        vector.append(word_id_dict[word])
+                    except KeyError:
+                        word_id_dict[word] = curr_id
+                        vector.append(curr_id)
+                        curr_id = curr_id + 1
+
+                vectors.append(vector)
+                rules.append(str(tag1+" "+tag3))
+        print(vectors)
+        print(rules)
+        dict_size = len(word_id_dict)
+        rule_size = len(vectors)
+        #A = lil_array((rule_size, dict_size))
+
+        #data = np.array([1, 2, 3, 4, 5])
+        #rows = np.array([0, 0, 1, 2, 2])
+        #cols = np.array([0, 2, 1, 0, 2])
+        data = []
+        rows = []
+        cols = []
+        for i in range(len(vectors)):
+            cols.extend(vectors[i])
+            rows.extend([i]*len(vectors[i]))
+            data.extend([1]*len(vectors[i]))
+
+        sparse_coo = sp.coo_array((data, (rows, cols)), shape=(rule_size, dict_size))
+        C = sparse_coo @ sparse_coo.transpose()
+        #C = sparse_coo.multiply(sparse_coo.transpose())
+        print(C.shape)
+        #max_values_per_row = C.max(axis=1)
+        C.setdiag([0]*rule_size)
+        max_indices_per_row = np.argmax(C, axis=1)
+        list_indices = max_indices_per_row.tolist()
+        print(list_indices)
+        for i in range(len(list_indices)):
+            print(rules[i], " --> ",rules[list_indices[i]])
+
+        #for i in range(len(vectors)):
+        #    for j in range(len(vectors)):
+
+        #tag1 = sys.argv[3]
+        #tag3 = sys.argv[4]
+        #threshold = int(sys.argv[5])
+        #
+        #for word, count in result.items():
+        #    if count >= threshold:
+        #        print(f"{word}")
 
     elif command == "search-realtions-by-pattern":
         if len(sys.argv) < 2:
